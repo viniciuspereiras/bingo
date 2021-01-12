@@ -1,6 +1,10 @@
 # Bingo
 Tool to start a python http server in a simple way.
-
+# Download:
+```bash
+git clone https://github.com/viniciuspereiras/bingo.git
+cd bingo
+```
 # Installation:
 -Manual install, run:
 ```bash
