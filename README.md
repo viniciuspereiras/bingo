@@ -12,7 +12,8 @@ chmod +x bingo
 sudo apt-get install python3 pip toilet 
 sudo mv ./bingo /usr/bin/bingo
 ```
-and ```bash
+and 
+```bash
 pip install -r requirements.txt
 ```
 Automatic install, run:
