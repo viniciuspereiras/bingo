@@ -2,15 +2,13 @@
 Tool to start a python http server in a simple way.
 
 # Installation:
--Manual install
-Run:
+-Manual install, run:
 ```bash
 chmod +x bingo
 sudo apt-get install python3 pip toilet 
 sudo mv ./bingo /usr/bin/bingo
 ```
--Automatic install
-Run:
+-Automatic install, run:
 ```bash
 sudo install.sh
 ```
@@ -18,7 +16,7 @@ and
 ```bash
 pip install -r requirements.txt
 ```
--Usage:
+# Usage:
 ```bash
 bingo (port)  
 ```
