@@ -1,0 +1,24 @@
+#!/bin/bash
+
+banner=$(shuf -i 0-1 -n 1)
+ip=$(hostname -I)
+if [[ $banner -eq '1' ]]
+then 
+toilet -f future 'Bingo' --filter metal --gay
+else
+toilet -f future 'Bingo' --filter metal 
+fi
+
+if [[ -z $1 ]]
+
+then
+echo ''
+echo 'usage: bingo port  / only bingo command will open a server on port 8000'
+echo '* if you want to use port 80 run with privileges (sudo)'
+echo '' 
+echo 'ip:' $ip
+echo ''
+fi
+port=$1
+
+python3 -m http.server $port
