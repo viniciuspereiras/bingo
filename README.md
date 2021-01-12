@@ -1,18 +1,18 @@
 # Bingo
 Tool to start a python http server in a simple way.
-# Download:
+## Download:
 ```bash
 git clone https://github.com/viniciuspereiras/bingo.git
 cd bingo
 ```
-# Installation:
--Manual install, run:
+## Installation:
+Manual install, run:
 ```bash
 chmod +x bingo
 sudo apt-get install python3 pip toilet 
 sudo mv ./bingo /usr/bin/bingo
 ```
--Automatic install, run:
+Automatic install, run:
 ```bash
 sudo install.sh
 ```
@@ -20,7 +20,7 @@ and
 ```bash
 pip install -r requirements.txt
 ```
-# Usage:
+## Usage:
 ```bash
 bingo (port)  
 ```
