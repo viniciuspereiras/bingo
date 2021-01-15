@@ -1,5 +1,5 @@
 # Bingo
-![alt text](https://github.com/viniciuspereiras/bingo/blob/main/bingouse.png)
+![alt text](https://github.com/viniciuspereiras/bingo/blob/main/bingo.png)
 
 - Tool to start a python http server in a simple way.
 ## Download:
