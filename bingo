@@ -4,9 +4,8 @@ if [[ $banner -eq '1' ]]
 then
 toilet -f future 'Bingo' --filter metal --gay
 else
- toilet -f future 'Bingo' --filter metal
+toilet -f future 'Bingo' --filter metal
 fi
-
 if [[ -z $1 ]]
 then
 echo ''
@@ -17,15 +16,12 @@ port='8000'
 else
 port=$1
 fi
-
-iptun0=$(ip route | grep tun0 | grep via | cut -d " " -f 3)
+iptun0=$(ip route | grep tun0 | grep src | cut -d " " -f 9)
 ipdefault=$(ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
-
 if [[ -z $iptun0 ]]
 then
 echo 'IP:' 'http://'$ipdefault':'$port
 else
 echo 'IP:' 'http://'$iptun0':'$port
 fi
-
 python3 -m http.server $port
