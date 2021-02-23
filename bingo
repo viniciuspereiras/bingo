@@ -4,8 +4,9 @@ if [[ $banner -eq '1' ]]
 then
 toilet -f future 'Bingo' --filter metal --gay
 else
-toilet -f future 'Bingo' --filter metal
+ toilet -f future 'Bingo' --filter metal
 fi
+
 if [[ -z $1 ]]
 then
 echo ''
@@ -16,12 +17,20 @@ port='8000'
 else
 port=$1
 fi
+if (echo $port | egrep '[^0-9]' &> /dev/null); then
+red=`tput setaf 1`
+echo "${red} Only numbers!"
+exit
+fi
+
 iptun0=$(ip route | grep tun0 | grep src | cut -d " " -f 9)
 ipdefault=$(ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
+
 if [[ -z $iptun0 ]]
 then
-echo 'IP:' 'http://'$ipdefault':'$port
+echo 'IP:' 'http://'$ipdefault':'$port'/'
 else
-echo 'IP:' 'http://'$iptun0':'$port
+echo 'IP:' 'http://'$iptun0':'$port'/'
 fi
+
 python3 -m http.server $port
