@@ -33,4 +33,4 @@ else
 echo 'IP:' 'http://'$iptun0':'$port'/'
 fi
 
-python3 -m http.server $port
+/usr/bin/python3 -m http.server $port
