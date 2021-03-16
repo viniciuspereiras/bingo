@@ -1,4 +1,9 @@
-# Bingo
+[![GitHub issues](https://img.shields.io/github/issues/viniciuspereiras/bingo)](https://github.com/viniciuspereiras/bingo/issues)
+[![GitHub stars](https://img.shields.io/github/stars/viniciuspereiras/bingo)](https://github.com/viniciuspereiras/bingo/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/viniciuspereiras/bingo)](https://github.com/viniciuspereiras/bingo/network)
+
+
+# bingo
 ![alt text](https://github.com/viniciuspereiras/bingo/blob/main/bingo.png)
 
 - Tool to start a python http server in a simple way.
