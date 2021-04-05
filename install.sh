@@ -1,5 +1,12 @@
 #!/bin/bash
-
-sudo apt-get install python3 pip toilet 
+pip install http.server
+pip install socketserver
+pip install os
+pip install argparse
+pip install netifaces 
+pip install pyfiglet
+pip install random 
+pip install termcolor 
+pip install sys
 mv ./bingo /usr/bin/bingo
-chmod +x bingo
+chmod +x /usr/bin/bingo
