@@ -21,7 +21,7 @@ def makebanner():
 
 makebanner()
 
-parser = argparse.ArgumentParser(description = 'Bingo facility with python web servers for CTFs')
+parser = argparse.ArgumentParser(description = 'Tool to start a python http server in a simple way, with support a reverse shell.')
 parser.add_argument('-p', action = 'store', dest = 'port', default = 8000, required = False, type = int, help = 'Port to open http server.')
 parser.add_argument('-rs', action = 'store', dest = 'reverse_shell_port', required = False, help = 'To open a reverse shell code. (specify port)')
 arguments = parser.parse_args()
@@ -76,5 +76,6 @@ try:
 	main()
 except KeyboardInterrupt:
 	print(colored("\nExit", "red"))
-	os.remove("bingors")
+	if os.path.exists("bingors"):
+			os.remove("bingors")
 	exit()
