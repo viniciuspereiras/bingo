@@ -8,6 +8,7 @@
 ![alt text](https://github.com/viniciuspereiras/bingo/blob/main/banner2.png)
 
 - Tool to start a python http server in a simple way, with support a reverse shell.
+- Yes, random banners
 ## Download:
 ```bash
 git clone https://github.com/viniciuspereiras/bingo.git
