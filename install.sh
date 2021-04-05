@@ -10,3 +10,5 @@ pip install termcolor
 pip install sys
 mv ./bingo /usr/bin/bingo
 chmod +x /usr/bin/bingo
+rm -f ./banner1.png
+rm -f ./banner2.png
