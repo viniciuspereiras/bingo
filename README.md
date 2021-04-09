@@ -5,7 +5,7 @@
 
 # bingo
 ![alt text](https://github.com/viniciuspereiras/bingo/blob/main/banner1.png)
-![alt text](https://github.com/viniciuspereiras/bingo/blob/main/banner2.png)
+
 
 - Tool to start a python http server in a simple way, with support a reverse shell.
 - Yes, random banners
