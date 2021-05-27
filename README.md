@@ -22,7 +22,8 @@ sudo bash install.sh
 
 ## Usage:
 ```bash
-bingo [-h] [-p PORT] [-rs REVERSE_SHELL_PORT]
+bingo [-h] [-p HTTP_PORT] [-r REMOTE_PORT] [-i INTERFACE] [--list-interfaces]
+
 ```
 - only bingo command will open a server on port 8000
 - To use port 80 you have to run with sudo.
