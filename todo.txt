@@ -1,3 +1,0 @@
--make new revshells codes
--add linpeas
--add other types of web servers(php, node...)
