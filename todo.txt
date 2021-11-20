@@ -1,0 +1,3 @@
+add a readme
+add more binaries
+create an instalation guide
