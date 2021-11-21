@@ -18,7 +18,7 @@ else:
         except yaml.YAMLError as exc:
             print(exc)
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/', static_folder='./')
 
 def search(parse, key_value):
     return parse[next((i for i,key in enumerate(parse) if key_value in key), None)].get(key_value)
@@ -52,15 +52,6 @@ def get_program(program_name):
     except TypeError:
         print(f'Program {program_name} not found!')
         return ''
-
-@app.route('/', defaults={'req_path': ''})
-@app.route('/<path:req_path>')
-def dir_listing(req_path):
-    BASE_DIR = os.path.abspath(os.getcwd())
-    abs_path = os.path.join(BASE_DIR, req_path).replace('.', '')
-    if os.path.isfile(abs_path):
-        return send_file(abs_path)
-    return ''
 
 if __name__ == '__main__':
     cli = sys.modules['flask.cli']
