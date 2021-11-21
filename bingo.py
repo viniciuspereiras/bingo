@@ -18,7 +18,7 @@ else:
         except yaml.YAMLError as exc:
             print(exc)
 
-app = Flask(__name__, static_url_path='/', static_folder='./')
+app = Flask(__name__, static_url_path='/', static_folder=os.getcwd())
 
 def search(parse, key_value):
     return parse[next((i for i,key in enumerate(parse) if key_value in key), None)].get(key_value)
