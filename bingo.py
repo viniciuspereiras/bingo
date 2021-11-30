@@ -8,7 +8,7 @@ net_interfaces = interfaces()
 
 config_path = os.path.expanduser('~') + '/.config/bingo.yaml'
 if not os.path.exists(config_path):
-    url = 'https://raw.githubusercontent.com/LuskaBol/bingo/main/bingo.yaml'
+    url = 'https://raw.githubusercontent.com/viniciuspereiras/bingo/main/bingo.yaml'
     r = requests.get(url, allow_redirects=True)
     open(config_path, 'wb').write(r.content)
 else:
