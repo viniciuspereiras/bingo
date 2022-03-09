@@ -1,6 +1,6 @@
 program:
   linpeas:
-    url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/linPEAS/linpeas.sh
+    url: https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
     type: script
     os: linux
   winpeas:
