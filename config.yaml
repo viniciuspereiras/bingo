@@ -1,7 +1,11 @@
+config:
+  port: 5000
+  host: 0.0.0.0
+  file_download: True
 program:
   linpeas:
     url: https://github.com/carlospolop/PEASS-ng/releases/latest/download/linpeas.sh
-    type: script
+    type: binary
     os: linux
   winpeas:
     url: https://raw.githubusercontent.com/carlospolop/PEASS-ng/master/winPEAS/winPEASexe/binaries/Obfuscated%20Releases/winPEASany.exe
